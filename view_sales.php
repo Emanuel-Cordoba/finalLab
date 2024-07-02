@@ -12,7 +12,7 @@ error_reporting(E_ALL);
 $host = '127.0.0.1';
 $db = 'pharmacy_db';
 $user = 'root';
-$pass = ''; 
+$pass = '';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -28,15 +28,12 @@ try {
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
 
-// Borrar el historial de ventas
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_sales'])) {
     $pdo->beginTransaction();
 
     try {
         $pdo->query("DELETE FROM sale_items");
-
         $pdo->query("DELETE FROM sales");
-
         $pdo->commit();
 
         header("Location: view_sales.php");
@@ -47,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_sales'])) {
     }
 }
 
-// Obtener todas las ventas
 $stmt = $pdo->query("SELECT * FROM sales");
 $sales = $stmt->fetchAll();
 ?>

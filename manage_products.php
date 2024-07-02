@@ -24,9 +24,15 @@ try {
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
 
-//mostrar productos
-$stmt = $pdo->query("SELECT * FROM products");
-$products = $stmt->fetchAll();
+$products = [];
+
+try {
+    
+    $stmt = $pdo->query("SELECT * FROM products");
+    $products = $stmt->fetchAll();
+} catch (\PDOException $e) {
+    echo "Error al obtener los productos: " . $e->getMessage();
+}
 ?>
 
 <!DOCTYPE html>
@@ -39,6 +45,15 @@ $products = $stmt->fetchAll();
 <body>
     <div class="container">
         <h1>Gestionar Productos</h1>
+        <?php if (isset($_GET['error'])): ?>
+            <?php if ($_GET['error'] == 'product_sold'): ?>
+                <p class="error">No se puede eliminar el producto porque ya ha sido vendido.</p>
+            <?php elseif ($_GET['error'] == 'no_id'): ?>
+                <p class="error">No se proporcionó un ID de producto válido.</p>
+            <?php endif; ?>
+        <?php elseif (isset($_GET['success']) && $_GET['success'] == 'product_deleted'): ?>
+            <p class="success">Producto eliminado exitosamente.</p>
+        <?php endif; ?>
         <table>
             <thead>
                 <tr>
@@ -51,26 +66,31 @@ $products = $stmt->fetchAll();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($products as $product): ?>
+                <?php if (!empty($products)): ?>
+                    <?php foreach ($products as $product): ?>
+                        <tr>
+                            <td><?php echo $product['id']; ?></td>
+                            <td><?php echo $product['name']; ?></td>
+                            <td><?php echo $product['description']; ?></td>
+                            <td><?php echo $product['price']; ?></td>
+                            <td><?php echo $product['stock']; ?></td>
+                            <td class="actions">
+                                <form action="edit_product.php" method="GET" style="display: inline;">
+                                    <input type="hidden" name="id" value="<?php echo $product['id']; ?>">
+                                    <button type="submit">Editar</button>
+                                </form>
+                                <form action="delete_product.php" method="POST" style="display: inline;">
+                                    <input type="hidden" name="id" value="<?php echo $product['id']; ?>">
+                                    <button style="background-color: red;" type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
                     <tr>
-                        <td><?php echo $product['id']; ?></td>
-                        <td><?php echo $product['name']; ?></td>
-                        <td><?php echo $product['description']; ?></td>
-                        <td><?php echo $product['price']; ?></td>
-                        <td><?php echo $product['stock']; ?></td>
-                        <td class="actions">
-                        <form action="edit_product.php" method="GET" style="display: inline;">
-                         <input type="hidden" name="id" value="<?php echo $product['id']; ?>">
-                              <button type="submit">Editar</button>
-                          </form>
-
-                            <form action="delete_product.php" method="POST" style="display: inline;">
-                                <input type="hidden" name="id" value="<?php echo $product['id']; ?>">
-                                <button style="background-color: red"; type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">Eliminar</button>
-                            </form>
-                        </td>
+                        <td colspan="6">No hay productos disponibles.</td>
                     </tr>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
         <button type="button" onclick="window.location.href='dashboard.php'">Volver</button>

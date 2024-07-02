@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <br>
             <button type="submit">Guardar Cambios</button>
         </form>
-        <button type="button" onclick="window.location.href='manage_products.php'">Cancelar</button>
+        <button type="button" onclick="window.location.href='manage_products.php'" style="background-color: red; color: white; border: none; padding: 10px; font-size: 16px; cursor: pointer; width: auto;">Cancelar</button>
     </div>
 </body>
 </html>
